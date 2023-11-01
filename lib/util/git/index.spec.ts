@@ -819,10 +819,8 @@ describe('util/git/index', () => {
       const gitCredentialsFile = upath.join(
         GlobalConfig.get('localDir'),
         '.git-credentials'
-        );
-      expect(res).toBe(
-        `store --file=${gitCredentialsFile}`
       );
+      expect(res).toBe(`store --file=${gitCredentialsFile}`);
     });
 
     it('should throw an error if the git-credential already exists', async () => {
@@ -830,9 +828,12 @@ describe('util/git/index', () => {
       const gitCredentialsFile = upath.join(
         GlobalConfig.get('localDir'),
         '.git-credentials'
-        );
-      fs.outputFile(gitCredentialsFile, "someOtherThingThatDontMatter", { mode: 0o640 })
-      await expect(git.initRepo({
+      );
+      fs.outputFile(gitCredentialsFile, 'someOtherThingThatDontMatter', {
+        mode: 0o640,
+      });
+      await expect(
+        await git.initRepo({
           url: origin.path,
           gitCredentialContent: 'somethingThatDontMatter',
         })
