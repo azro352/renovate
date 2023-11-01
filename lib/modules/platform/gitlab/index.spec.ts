@@ -6,7 +6,6 @@ import * as httpMock from '../../../../test/http-mock';
 import { mocked } from '../../../../test/util';
 import {
   CONFIG_GIT_URL_UNAVAILABLE,
-  PLATFORM_GIT_CREDENTIALS_COMMAND_ERROR,
   REPOSITORY_ARCHIVED,
   REPOSITORY_CHANGED,
   REPOSITORY_DISABLED,
@@ -510,23 +509,6 @@ describe('modules/platform/gitlab/index', () => {
           },
         ],
       ]);
-    });
-
-    it('should throw a specific error when git.raw fails', async () => {
-      httpMock
-        .scope(gitlabApiHost)
-        .get('/api/v4/projects/some%2Frepo%2Fproject')
-        .reply(200, {
-          default_branch: 'master',
-          http_url_to_repo: `https://gitlab.com/some%2Frepo%2Fproject.git`,
-        });
-      git.raw.mockImplementation(() => {
-        throw new Error();
-      });
-      await expect(gitlab.initRepo({
-        repository: 'some/repo/project',
-        platformGitCredentialsFile: true,
-      })).rejects.toThrow(PLATFORM_GIT_CREDENTIALS_COMMAND_ERROR);
     });
   });
 

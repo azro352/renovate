@@ -17,7 +17,6 @@ import type { RenovateConfig } from '../../config/types';
 import {
   CONFIG_VALIDATION,
   INVALID_PATH,
-  PLATFORM_GIT_CREDENTIALS_COMMAND_ERROR,
   PLATFORM_GIT_CREDENTIALS_FILE_ERROR,
   REPOSITORY_CHANGED,
   REPOSITORY_DISABLED,
@@ -1145,18 +1144,12 @@ export async function configureCredentialHelperStore(
     GlobalConfig.get('localDir'),
     '.git-credentials'
   );
-  let res;
-  try {
-    res = await git.raw([
-      'config',
-      '--global',
-      'credential.helper',
-      `store --file=${gitCredentialsFile}`,
-    ]);
-  } catch (err) {
-    logger.warn({ err, res }, 'Failed to configure git credential.helper');
-    throw new Error(PLATFORM_GIT_CREDENTIALS_COMMAND_ERROR);
-  }
+  await git.raw([
+    'config',
+    '--global',
+    'credential.helper',
+    `store --file=${gitCredentialsFile}`,
+  ]);
   if (await fs.pathExists(gitCredentialsFile)) {
     logger.warn(
       { gitCredentialsFile },
@@ -1168,12 +1161,7 @@ export async function configureCredentialHelperStore(
       { gitCredentialsFile, content },
       'Writing credentials to file'
     );
-    try {
-      await fs.outputFile(gitCredentialsFile, content, { mode: 0o640 });
-    } catch (err) {
-      logger.warn({ err }, 'Failed to write to git-credentials file');
-      throw new Error(PLATFORM_GIT_CREDENTIALS_FILE_ERROR);
-    }
+    await fs.outputFile(gitCredentialsFile, content, { mode: 0o640 });
   }
 }
 
