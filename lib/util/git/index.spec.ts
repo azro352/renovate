@@ -1,11 +1,13 @@
 import fs from 'fs-extra';
 import Git from 'simple-git';
 import tmp from 'tmp-promise';
+import upath from 'upath';
 import { logger, mocked } from '../../../test/util';
 import { GlobalConfig } from '../../config/global';
 import {
   CONFIG_VALIDATION,
   INVALID_PATH,
+  PLATFORM_GIT_CREDENTIALS_FILE_ERROR,
 } from '../../constants/error-messages';
 import { newlineRegex, regEx } from '../regex';
 import * as _behindBaseCache from './behind-base-branch-cache';
@@ -814,9 +816,27 @@ describe('util/git/index', () => {
       const res = (
         await repo.raw(['config', '--global', 'credential.helper'])
       ).trim();
+      const gitCredentialsFile = upath.join(
+        GlobalConfig.get('localDir'),
+        '.git-credentials'
+        );
       expect(res).toBe(
-        `store --file=${GlobalConfig.get('localDir')}/.git-credentials`
+        `store --file=${gitCredentialsFile}`
       );
+    });
+
+    it('should throw an error if the git-credential already exists', async () => {
+      await fs.emptyDir(tmpDir.path);
+      const gitCredentialsFile = upath.join(
+        GlobalConfig.get('localDir'),
+        '.git-credentials'
+        );
+      fs.outputFile(gitCredentialsFile, "someOtherThingThatDontMatter", { mode: 0o640 })
+      await expect(git.initRepo({
+          url: origin.path,
+          gitCredentialContent: 'somethingThatDontMatter',
+        })
+      ).rejects.toThrow(PLATFORM_GIT_CREDENTIALS_FILE_ERROR);
     });
   });
 
