@@ -373,7 +373,7 @@ export async function initRepo({
 
     const gitCredentialContent: string | undefined = platformGitCredentialsFile
       ? url.replace(
-          new RegExp('(https?://)([^/]*).*'),
+        regEx('(https?://)([^/]*).*'),
           `$1oauth2:${opts.token}@$2`
         )
       : undefined;

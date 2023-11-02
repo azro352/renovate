@@ -813,9 +813,8 @@ describe('util/git/index', () => {
         gitCredentialContent: 'somethingThatDontMatter',
       });
       const repo = Git(tmpDir.path);
-      const res = (
-        await repo.raw(['config', '--global', 'credential.helper'])
-      ).trim();
+      const credsHelperResult = await repo.getConfig('credential.helper', 'global');
+      const res = (credsHelperResult.value ?? "").trim();
       const gitCredentialsFile = upath.join(
         GlobalConfig.get('localDir'),
         '.git-credentials'
@@ -833,7 +832,7 @@ describe('util/git/index', () => {
         mode: 0o640,
       });
       await expect(
-        await git.initRepo({
+        git.initRepo({
           url: origin.path,
           gitCredentialContent: 'somethingThatDontMatter',
         })

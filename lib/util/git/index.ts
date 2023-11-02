@@ -1144,14 +1144,14 @@ export async function configureCredentialHelperStore(
     GlobalConfig.get('localDir'),
     '.git-credentials'
   );
-  await git.raw([
-    'config',
-    '--global',
+  await git.addConfig(
     'credential.helper',
     `store --file=${gitCredentialsFile}`,
-  ]);
+  //  false,
+  //  'global'
+  );
   if (await fs.pathExists(gitCredentialsFile)) {
-    logger.warn(
+    logger.debug(
       { gitCredentialsFile },
       'The git-credentials file already exists'
     );
